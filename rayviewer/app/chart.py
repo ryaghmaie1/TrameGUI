@@ -7,6 +7,11 @@ polar_data = pd.read_csv(
 
 
 def create_polar_fig(width=300, height=300, **kwargs):
+    if width < 10:
+        width = 10
+    if height < 10:
+        height = 10
+
     fig = go.Figure()
     fig.add_trace(
         go.Scatterpolar(

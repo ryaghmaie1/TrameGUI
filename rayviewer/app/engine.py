@@ -75,6 +75,23 @@ def initialize(server, dataset_path):
     state.change("tube_radius")(engine.update_tube_radius)
     state.change("color_preset")(engine.update_color_preset)
 
+    @state.change("fig_1_size")
+    def update_chart_size(fig_1_size, **kwargs):
+        if fig_1_size:
+            ctrl.fig_1_update(create_polar_fig(**fig_1_size.get("size")))
+
+    @state.change("grid_dim_x", "grid_dim_y")
+    def update_grid(grid_dim_x, grid_dim_y, **kwargs):
+        grid_dim_x = int(grid_dim_x)
+        grid_dim_y = int(grid_dim_y)
+        grid = []
+        for j in range(grid_dim_y):
+            line = []
+            for i in range(grid_dim_x):
+                line.append(0)
+            grid.append(line)
+        state.grid = grid
+
     @state.change("geometry_1_opacity")
     def update_geo_1_opacity(geometry_1_opacity, **kwargs):
         engine.update_opacity(0, geometry_1_opacity)
@@ -114,9 +131,6 @@ def initialize(server, dataset_path):
     def load_dataset(**kwargs):
         engine.load_dataset(dataset_path)
         engine.update_tube_radius(state.tube_radius)
-
-        # Fake to fillup the chart
-        ctrl.fig_1_update(create_polar_fig())
 
     @ctrl.add("on_server_reload")
     def reload():

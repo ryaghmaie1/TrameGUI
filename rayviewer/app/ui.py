@@ -1,7 +1,10 @@
 from trame.ui.vuetify import VAppLayout
-from trame.widgets import vuetify, vtk, plotly, html
+from trame.widgets import vuetify, vtk, plotly, html, trame
 
 COMPACT = dict(dense=True, hide_details=True)
+
+H_LINE_STYLE = "background: linear-gradient(180deg, rgba(0,0,0,0) calc(50% - 1px), rgba(192,192,192,1) calc(50%), rgba(0,0,0,0) calc(50% + 1px));"
+V_LINE_STYLE = "background: linear-gradient(90deg, rgba(0,0,0,0) calc(50% - 1px), rgba(192,192,192,1) calc(50%), rgba(0,0,0,0) calc(50% + 1px));"
 
 
 def geometry_line(ctrl, index):
@@ -31,9 +34,34 @@ def initialize(server):
             # Settings parameters
             with vuetify.VCol(cols=4, classes="fill-height"):  # Left column
                 with vuetify.VCard():
-                    vuetify.VCardTitle("Configuration", classes="py-0")
+                    with vuetify.VCardTitle("Configuration", classes="py-0"):
+                        vuetify.VSpacer()
+                        with vuetify.VBtn(
+                            icon=True, x_small=True, click=ctrl.on_server_reload
+                        ):
+                            vuetify.VIcon("mdi-refresh", small=True)
+
                     vuetify.VDivider()
                     with vuetify.VCardText():
+                        with vuetify.VRow():
+                            with vuetify.VCol():
+                                vuetify.VTextField(
+                                    label="X",
+                                    v_model=("grid_dim_x", 10),
+                                    type="number",
+                                    min=5,
+                                    max=100,
+                                    step=1,
+                                )
+                            with vuetify.VCol():
+                                vuetify.VTextField(
+                                    label="Y",
+                                    v_model=("grid_dim_y", 10),
+                                    type="number",
+                                    min=5,
+                                    max=100,
+                                    step=1,
+                                )
                         vuetify.VTextField(
                             label="Variable - 1",
                             v_model=("var_1", "0, 1000, 2000, ..."),
@@ -125,22 +153,40 @@ def initialize(server):
                         geometry_line(ctrl, 7)
 
             with vuetify.VCol(
-                cols=8, classes="fill-height d-flex flex-column"
+                cols=8,
+                classes="fill-height d-flex flex-column",
             ):  # Right column
-                with vuetify.VRow(
-                    classes="px-0 ma-0", style="min-height: 0; flex: none;"
+                with html.Div(
+                    classes="px-0 ma-0 d-flex flex-no-wrap",
+                    style="flex: none; width: 100%;",
                 ):
-                    with vuetify.VCol(classes="pa-0 ma-0"):
-                        with vuetify.VCard():
-                            with vuetify.VCardText():
-                                fig = plotly.Figure(display_mode_bar=False)
+                    with vuetify.VCard(classes="flex"):
+                        with vuetify.VCardText(style="height: 100%;"):
+                            with trame.SizeObserver("fig_1_size"):
+                                fig = plotly.Figure(
+                                    display_mode_bar=False, style="position: absolute;"
+                                )
                                 ctrl.fig_1_update = fig.update
 
-                    with vuetify.VCol(classes="pt-0 pr-0 ma-0"):
-                        with vuetify.VCard():
-                            with vuetify.VCardText():
-                                html.Div("Ray selection widget (TODO)")
-                                vuetify.VBtn("Reload", click=ctrl.on_server_reload)
+                    with vuetify.VCard(style="flex: none;", classes="ml-2"):
+                        with vuetify.VCardText():
+                            # Make Grid from html
+                            with vuetify.VRow(
+                                v_for="line, j in grid",
+                                key="j",
+                                classes="justify-center",
+                                style=H_LINE_STYLE,
+                            ):
+                                with html.Div(
+                                    v_for="item, i in line", key="i", style=V_LINE_STYLE
+                                ):
+                                    with vuetify.VBtn(
+                                        icon=True,
+                                        small=True,
+                                        color=("item ? 'red' : 'gray'",),
+                                        click="grid[j][i] = !grid[j][i];flushState('grid');",
+                                    ):
+                                        vuetify.VIcon("mdi-checkbox-blank-circle")
 
                 with vuetify.VRow(classes="px-0 ma-0 pt-2"):
                     with vuetify.VCard(style="width: 100%;"):
