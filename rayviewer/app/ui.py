@@ -70,18 +70,18 @@ def initialize(server):
                             label="Variable - 2",
                             v_model=("var_2", "0, 1000, 2000, ..."),
                         )
-                        with vuetify.VRow():
-                            with vuetify.VCol(cols=3):
-                                vuetify.VSwitch(
-                                    label="V3",
-                                    v_model=("var_3", True),
-                                )
-                            with vuetify.VCol(cols=9):
-                                vuetify.VTextField(
-                                    type="number",
-                                    label="Var4",
-                                    v_model=("var_4", 3),
-                                )
+                        with vuetify.VRadioGroup(
+                            v_model=("var_3", "bla"),
+                            row=True,
+                        ):
+                            vuetify.VRadio(label="Option A", value="option_a")
+                            vuetify.VRadio(label="B", value="bla")
+                            vuetify.VRadio(label="C", value="c")
+                        vuetify.VTextField(
+                            type="number",
+                            label="Var4",
+                            v_model=("var_4", 3),
+                        )
                         with vuetify.VRow():
                             vuetify.VTextField(
                                 label="V5",
@@ -180,13 +180,18 @@ def initialize(server):
                                 with html.Div(
                                     v_for="item, i in line", key="i", style=V_LINE_STYLE
                                 ):
-                                    with vuetify.VBtn(
-                                        icon=True,
-                                        small=True,
-                                        color=("item ? 'red' : 'gray'",),
-                                        click="grid[j][i] = !grid[j][i];flushState('grid');",
-                                    ):
-                                        vuetify.VIcon("mdi-checkbox-blank-circle")
+                                    with vuetify.VTooltip(left=True):
+                                        with vuetify.Template(v_slot_activator="{ on, attrs }"):
+                                            with vuetify.VBtn(
+                                                icon=True,
+                                                small=True,
+                                                color=("item ? 'red' : 'gray'",),
+                                                click="grid[j][i] = !grid[j][i];flushState('grid');",
+                                                v_bind="attrs",
+                                                v_on="on",
+                                            ):
+                                                vuetify.VIcon("mdi-checkbox-blank-circle")
+                                        html.Span("{{ i }} x {{ j }}")
 
                 with vuetify.VRow(classes="px-0 ma-0 pt-2"):
                     with vuetify.VCard(style="width: 100%;"):
