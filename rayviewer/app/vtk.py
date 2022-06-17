@@ -114,6 +114,7 @@ class TubeElement(BaseElement):
         actor = vtkActor()
         tube = vtkTubeFilter()
         tube.SetNumberOfSides(24)
+        tube.CappingOn()
         super().__init__([reader, tube], mapper, actor)
 
     @property
