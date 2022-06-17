@@ -40058,7 +40058,7 @@
         </DataArray>
       </Cells>
       <CellData Scalars="Wavelength">
-        <DataArray type="Float32" Name="Real_RI" format="ascii">
+        <DataArray type="Float32" Name="Wavelength" format="ascii">
            5.200e+02
            5.200e+02
            5.200e+02

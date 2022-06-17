@@ -24,8 +24,8 @@
       </Cells>
       <CellData Scalars="TargetEyebox">
         <DataArray type="Float32" Name="TargetEyebox" format="ascii">
-           1.500e+02
-           1.500e+02
+           5.000e+02
+           5.000e+02
         </DataArray>
       </CellData>
     </Piece>
