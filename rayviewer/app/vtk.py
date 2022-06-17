@@ -139,6 +139,8 @@ class VisualizationManager:
         self.renderer.SetBackground(0.35, 0.35, 0.35)
         self.renderer.AddActor2D(self._scalar_bar)
 
+        self.camera = self.renderer.GetActiveCamera()
+
         self.render_window = vtkRenderWindow()
         self.render_window.AddRenderer(self.renderer)
         self.render_window.OffScreenRenderingOn()
@@ -204,9 +206,31 @@ class VisualizationManager:
         if len(self._pipeline):
             return self._pipeline[index]
 
+    def clear_pipeline(self):
+        for elem in self._pipeline:
+            self.renderer.RemoveActor(elem.actor)
+
+        self._pipeline = []
+        self._tube_indexes = []
+
     @property
     def preset_names(self):
         return self._presets.get_names()
+
+    def reset_camera_x(self):
+        self.camera.SetFocalPoint(0, 0, 0)
+        self.camera.SetPosition(1, 0, 0)
+        self.camera.SetViewUp(0, 1, 0)
+
+    def reset_camera_y(self):
+        self.camera.SetFocalPoint(0, 0, 0)
+        self.camera.SetPosition(0, 1, 0)
+        self.camera.SetViewUp(0, 0, 1)
+
+    def reset_camera_z(self):
+        self.camera.SetFocalPoint(0, 0, 0)
+        self.camera.SetPosition(0, 0, 1)
+        self.camera.SetViewUp(0, 1, 0)
 
 
 class ColorMaps:

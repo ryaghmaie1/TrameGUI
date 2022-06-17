@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import os
 from .vtk import VisualizationManager, get_reader, MultiFileDataSet
 from .chart import create_polar_fig
 
@@ -21,6 +22,7 @@ class Engine:
         return self._server.controller
 
     def load_dataset(self, dataset_base_path):
+        self._viz.clear_pipeline()
         base = Path(dataset_base_path)
 
         for idx in range(1, 5):
@@ -72,8 +74,12 @@ class Engine:
     def get_renderwindow(self):
         return self._viz.render_window
 
+    @property
+    def viz(self):
+        return self._viz
 
-def initialize(server, dataset_path):
+
+def initialize(server):
     state, ctrl = server.state, server.controller
     engine = Engine(server)
 
@@ -110,6 +116,20 @@ def initialize(server, dataset_path):
     def update_geo_2_opacity(geometry_2_opacity, **kwargs):
         engine.update_opacity(1, geometry_2_opacity)
 
+    @state.change("data_directory")
+    def load_dataset(data_directory, **kwargs):
+        if data_directory is None:
+            return
+
+        # FIXME
+        full_path = Path(f"./data/{data_directory}")
+
+        engine.load_dataset(full_path)
+        engine.update_tube_radius(state.tube_radius)
+        engine.update_tube_capping(state.tube_cap)
+        engine.update_tube_sides(state.tube_sides)
+        state.data_available = True
+
     # Attach external execution to controller
     @ctrl.set("simulation_run")
     def run_simulation():
@@ -122,25 +142,26 @@ def initialize(server, dataset_path):
             v6=state.var_6,
             v7=state.var_7,
         )
-        print("Run external code", params)
+        print("Run external code", params, flush=True)
 
-    @ctrl.set("simulation_load")
-    def load_simulation():
-        params = dict(
-            v1=state.var_1,
-            v2=state.var_2,
-            v3=state.var_3,
-            v4=state.var_4,
-            v5=state.var_5,
-            v6=state.var_6,
-            v7=state.var_7,
-        )
-        print("Load external code", params)
+        # FIXME: Update drop down to let user pick the data to load
+        dir_to_list = Path("./data")
+        state.available_directories = os.listdir(dir_to_list)
 
-    @ctrl.add("on_server_ready")
-    def load_dataset(**kwargs):
-        engine.load_dataset(dataset_path)
-        engine.update_tube_radius(state.tube_radius)
+    @ctrl.set("fig_3_reset_camera_x")
+    def reset_camera_x():
+        engine.viz.reset_camera_x()
+        ctrl.fig_3_reset_camera()
+
+    @ctrl.set("fig_3_reset_camera_y")
+    def reset_camera_y():
+        engine.viz.reset_camera_y()
+        ctrl.fig_3_reset_camera()
+
+    @ctrl.set("fig_3_reset_camera_z")
+    def reset_camera_z():
+        engine.viz.reset_camera_z()
+        ctrl.fig_3_reset_camera()
 
     @ctrl.add("on_server_reload")
     def reload():

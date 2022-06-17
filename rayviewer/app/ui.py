@@ -100,11 +100,16 @@ def initialize(server):
                             )
                     with vuetify.VCardActions():
                         vuetify.VBtn("Run Simulation", click=ctrl.simulation_run)
-                        vuetify.VSpacer()
-                        vuetify.VBtn("Load", click=ctrl.simulation_load)
+                        vuetify.VSelect(
+                            v_show="available_directories.length",
+                            classes="ml-4",
+                            v_model=("data_directory", None),
+                            items=("available_directories", []),
+                            **COMPACT,
+                        )
 
                 # Geometry control
-                with vuetify.VCard(classes="mt-6"):
+                with vuetify.VCard(classes="mt-6", v_if=("data_available", False)):
                     with vuetify.VCardTitle("3D controls", classes="py-2"):
                         vuetify.VSpacer()
                         vuetify.VSelect(
@@ -217,13 +222,43 @@ def initialize(server):
                                         html.Span("{{ i }} x {{ j }}")
 
                 with vuetify.VRow(classes="px-0 ma-0 pt-2"):
-                    with vuetify.VCard(style="width: 100%;"):
+                    with vuetify.VCard(
+                        style="width: 100%;", v_if=("data_available", False)
+                    ):
                         with vuetify.VCardTitle("3D Visualization", classes="py-0"):
                             vuetify.VSpacer()
                             with vuetify.VBtn(
                                 x_small=True,
                                 icon=True,
+                                click=ctrl.fig_3_reset_camera_x,
+                                color="red",
+                                classes="ml-2",
+                            ):
+                                vuetify.VIcon("mdi-axis-x-arrow", small=True)
+
+                            with vuetify.VBtn(
+                                x_small=True,
+                                icon=True,
+                                click=ctrl.fig_3_reset_camera_y,
+                                color="green",
+                                classes="ml-2",
+                            ):
+                                vuetify.VIcon("mdi-axis-y-arrow", small=True)
+
+                            with vuetify.VBtn(
+                                x_small=True,
+                                icon=True,
+                                click=ctrl.fig_3_reset_camera_z,
+                                color="blue",
+                                classes="ml-2",
+                            ):
+                                vuetify.VIcon("mdi-axis-z-arrow", small=True)
+
+                            with vuetify.VBtn(
+                                x_small=True,
+                                icon=True,
                                 click=ctrl.fig_3_reset_camera,
+                                classes="ml-2",
                             ):
                                 vuetify.VIcon("mdi-crop-free", small=True)
                         with vuetify.VCardText(
@@ -231,7 +266,8 @@ def initialize(server):
                             style="height: calc(100% - 32px); overflow: hidden;",
                         ):
                             view = vtk.VtkRemoteView(
-                                ctrl.get_vtk_renderwindow(), interactive_ratio=1
+                                ctrl.get_vtk_renderwindow(),
+                                interactive_ratio=1,
                             )
                             ctrl.fig_3_update = view.update
                             ctrl.fig_3_reset_camera = view.reset_camera

@@ -16,14 +16,11 @@ def main(server=None, **kwargs):
     if isinstance(server, str):
         server = get_server(server)
 
-    server.cli.add_argument("--data", help="Dataset base path", dest="data")
-    args, _ = server.cli.parse_known_args()
-
     # Make UI reloadable (for dev)
     server.controller.on_server_reload = _reload
 
     # Init application
-    engine.initialize(server, args.data)
+    engine.initialize(server)
     ui.initialize(server)
 
     # Start server

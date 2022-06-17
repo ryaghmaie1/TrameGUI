@@ -21,4 +21,7 @@ Run the application
 
 .. code-block:: console
 
-    rayviewer --data ./data/dataset1
+    rayviewer
+
+    # 1) run simulation
+    # 2) select directory to load
