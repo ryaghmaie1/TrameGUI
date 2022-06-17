@@ -138,17 +138,36 @@ def initialize(server):
                         for i in range(2, 6):
                             geometry_line(ctrl, i)
 
-                        with geometry_line(ctrl, 6):
-                            vuetify.VSlider(
-                                label="Radius",
-                                v_model=("tube_radius", 100),
-                                min=50,
-                                max=200,
-                                step=1,
-                                **COMPACT,
-                                classes="ml-4",
-                            )
-                            html.Span("{{ tube_radius }}")
+                        geometry_line(ctrl, 6)
+                        with vuetify.VCol(classes="py-0"):
+                            with vuetify.VRow(classes="align-center mt-2"):
+                                vuetify.VSlider(
+                                    label="Radius",
+                                    v_model=("tube_radius", 100),
+                                    min=50,
+                                    max=200,
+                                    step=1,
+                                    **COMPACT,
+                                    classes="ml-4",
+                                )
+                                html.Span("{{ tube_radius }}")
+                            with vuetify.VRow(classes="align-center mt-2"):
+                                vuetify.VSlider(
+                                    type="number",
+                                    label="Sides",
+                                    v_model=("tube_sides", 12),
+                                    min=3,
+                                    max=24,
+                                    classes="ml-4",
+                                    **COMPACT,
+                                )
+                                html.Span("{{ tube_sides }}")
+                                html.Span("Capping", classes="ml-2")
+                                vuetify.VSwitch(
+                                    v_model=("tube_cap", True),
+                                    **COMPACT,
+                                    classes="mt-0 pt-0",
+                                )
 
                         geometry_line(ctrl, 7)
 
@@ -181,7 +200,9 @@ def initialize(server):
                                     v_for="item, i in line", key="i", style=V_LINE_STYLE
                                 ):
                                     with vuetify.VTooltip(left=True):
-                                        with vuetify.Template(v_slot_activator="{ on, attrs }"):
+                                        with vuetify.Template(
+                                            v_slot_activator="{ on, attrs }"
+                                        ):
                                             with vuetify.VBtn(
                                                 icon=True,
                                                 small=True,
@@ -190,7 +211,9 @@ def initialize(server):
                                                 v_bind="attrs",
                                                 v_on="on",
                                             ):
-                                                vuetify.VIcon("mdi-checkbox-blank-circle")
+                                                vuetify.VIcon(
+                                                    "mdi-checkbox-blank-circle"
+                                                )
                                         html.Span("{{ i }} x {{ j }}")
 
                 with vuetify.VRow(classes="px-0 ma-0 pt-2"):

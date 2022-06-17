@@ -190,6 +190,16 @@ class VisualizationManager:
             elem = self._pipeline[i]
             elem.tube_filter.SetRadius(radius)
 
+    def update_tube_sides(self, sides):
+        for i in self._tube_indexes:
+            elem = self._pipeline[i]
+            elem.tube_filter.SetNumberOfSides(sides)
+
+    def update_tube_capping(self, capping):
+        for i in self._tube_indexes:
+            elem = self._pipeline[i]
+            elem.tube_filter.SetCapping(capping)
+
     def get_geometry(self, index):
         if len(self._pipeline):
             return self._pipeline[index]

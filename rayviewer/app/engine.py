@@ -57,6 +57,14 @@ class Engine:
         self._viz.update_tube_radius(tube_radius)
         self.ctrl.fig_3_update()
 
+    def update_tube_capping(self, tube_cap=True, **kwargs):
+        self._viz.update_tube_capping(tube_cap)
+        self.ctrl.fig_3_update()
+
+    def update_tube_sides(self, tube_sides=10, **kwargs):
+        self._viz.update_tube_sides(tube_sides)
+        self.ctrl.fig_3_update()
+
     def update_color_preset(self, color_preset, **kwargs):
         self._viz.update_color_preset(color_preset)
         self.ctrl.fig_3_update()
@@ -73,6 +81,8 @@ def initialize(server, dataset_path):
     ctrl.get_vtk_renderwindow = engine.get_renderwindow
     ctrl.update_visibility = engine.update_visibility
     state.change("tube_radius")(engine.update_tube_radius)
+    state.change("tube_sides")(engine.update_tube_sides)
+    state.change("tube_cap")(engine.update_tube_capping)
     state.change("color_preset")(engine.update_color_preset)
 
     @state.change("fig_1_size")
