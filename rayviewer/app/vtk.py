@@ -162,7 +162,7 @@ class VisualizationManager:
 
     def update_color_preset(self, name):
         x, colors = self._presets.get_colors(name)
-        color_range_target = [100, 600]
+        color_range_target = [400, 650]
         color_range_delta = color_range_target[1] - color_range_target[0]
 
         self._lut.RemoveAllPoints()
@@ -203,8 +203,13 @@ class VisualizationManager:
             elem.tube_filter.SetCapping(capping)
 
     def get_geometry(self, index):
-        if len(self._pipeline):
-            return self._pipeline[index]
+        # print(' get_geometry', flush=True)
+        # print('index     ', index, flush=True)
+        if index==106:
+            return
+        else:
+            if len(self._pipeline):
+                return self._pipeline[index]
 
     def clear_pipeline(self):
         for elem in self._pipeline:
