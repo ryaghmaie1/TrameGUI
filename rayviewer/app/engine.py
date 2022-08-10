@@ -5,7 +5,6 @@ from .vtk import VisualizationManager, get_reader, MultiFileDataSet
 from .chart import create_polar_fig
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import matlab.engine
 import time
 from time import process_time
 from os.path import dirname, join as pjoin
@@ -212,6 +211,13 @@ def initialize(server):
 
     dir_to_list = Path("./data")
     state.available_directories = os.listdir(dir_to_list)
+    # Dynamic wavelength checkbox
+    state.wavelength = [
+    ("450", "rgb(238, 130, 238)", True),
+    ("520", "green", True),
+    ("620", "red", True),
+    ("630", "red", False),
+    ]
 
     # Bind engine methods to controller
     ctrl.get_vtk_renderwindow = engine.get_renderwindow
@@ -282,7 +288,7 @@ def initialize(server):
         # figks.update_layout.Shape(editable=True)
         # figks.layout.Shape(editable=True)
         
-        return figks #.show(config=dict({'editable': True,'edits': {'shapePosition': True}}))
+        return figks#.show(config=dict({'editable': True,'edits': {'shapePosition': True}}))
 
     @state.change("inp_devx","inp_devy")
     def create_plotly_fig4(inp_devx,inp_devy,**kwargs):
@@ -395,6 +401,14 @@ def initialize(server):
                     engine.update_tube_sides(state.tube_sides)
                     state.data_available = True
                     ctrl.fig_3_update()
+
+    @state.change("wavelength")
+    def readchkbox(wavelength, **kwargs):
+    
+        print('wavelength=',wavelength, flush=True)
+
+
+
 
     @state.change("data_directory", "wvlt_chbx_450", "wvlt_chbx_520", "wvlt_chbx_620")
     def load_chbox(data_directory, wvlt_chbx_450, wvlt_chbx_520, wvlt_chbx_620, **kwargs):

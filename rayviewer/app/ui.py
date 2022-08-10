@@ -113,21 +113,21 @@ def initialize(server):
                             ):
                                 vuetify.VRadio(label="C", value="A")
                                 vuetify.VRadio(label="P", value="B")
-                        with vuetify.VRow():
+                        with vuetify.VRow(v_show="inp_IC_shap=='A'"):
                             vuetify.VTextField(
                                 label="var-8",
                                 v_model=("inp_ICx", "0,2000"),
                                 classes="mx-2",
                                 filled=True,
                             )
-                        with vuetify.VRow():
+                        with vuetify.VRow(v_show="inp_IC_shap=='B'"):
                             vuetify.VTextField(
                                 label="var-9",
                                 v_model=("inp_ICy", "0,30"),
                                 classes="mx-2",
                                 filled=True,
                             )
-                        with vuetify.VRow():
+                        with vuetify.VRow(v_show="inp_IC_shap=='B'"):
                             vuetify.VTextField(
                                 label="var-10",
                                 v_model=("inp_IC_peri", "350"),
@@ -230,6 +230,15 @@ def initialize(server):
                                         label="620",
                                         v_model=("wvlt_chbx_620", True),
                                         color='red',
+                                        classes="mx-2")
+                                with vuetify.VRow(classes="align-center mt-2"):
+                                    vuetify.VCheckbox(
+                                        v_for = "i10, index in wavelength",
+                                        label=("i10[0]",),
+                                        v_model=("i10[2]",),
+                                        color=("i10[1]",),
+                                        key = "index",
+                                        change = "flushState('wavelength')",
                                         classes="mx-2")
 
                             vuetify.VDivider()
