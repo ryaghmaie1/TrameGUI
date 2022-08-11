@@ -13,6 +13,7 @@ from time import localtime, strftime
 import numpy as np
 import pandas as pd
 from collections import OrderedDict
+from .wave2rgb import wave2rgb
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -32,7 +33,6 @@ class Engine:
 
     def load_dataset(self, dataset_base_path):
     
-    
         # index = self._server.state._pipeline
         # print('index=', index, flush=True)
         
@@ -51,12 +51,21 @@ class Engine:
         # Wavelength.sort()
         COMPONENTS0 = Wavelength.copy()
         COMPONENTS = []
-        if self._server.state.wvlt_chbx_450:
-            COMPONENTS.append(COMPONENTS0[0])
-        if self._server.state.wvlt_chbx_520:
-            COMPONENTS.append(COMPONENTS0[1])
-        if self._server.state.wvlt_chbx_620:
-            COMPONENTS.append(COMPONENTS0[2])
+        # if self._server.state.wvlt_chbx_450:
+            # COMPONENTS.append(COMPONENTS0[0])
+        # if self._server.state.wvlt_chbx_520:
+            # COMPONENTS.append(COMPONENTS0[1])
+        # if self._server.state.wvlt_chbx_620:
+            # COMPONENTS.append(COMPONENTS0[2])
+        sw = self._server.state.wavelength
+        
+        # print('len(sw)', len(sw), flush=True)
+        for i in range(len(sw)):
+            # print('sw[i][2]', sw[i][2], flush=True)
+            # print('int(sw[i][0]', int(sw[i][0]), flush=True)
+            if sw[i][2]:
+                COMPONENTS.append(int(sw[i][0]))
+        # print('COMPONENTS', COMPONENTS, flush=True)
 
         for idx in range(1, 5):
             self._viz.add_geometry(get_reader(base / f"geometry{idx}.vtu"))
@@ -81,7 +90,7 @@ class Engine:
         self.ctrl.fig_3_reset_camera()
 
 
-    def load_chbox(self, dataset_base_path, chbx_450, chbx_520, chbx_620):
+    def load_chbox(self, dataset_base_path, wavelengthvar):
 
         # self._viz.clear_pipeline()
         # FIXME
@@ -97,12 +106,16 @@ class Engine:
         # Wavelength.sort()
         COMPONENTS0 = Wavelength.copy()
         COMPONENTS = []
-        if chbx_450:
-            COMPONENTS.append(COMPONENTS0[0])
-        if chbx_520:
-            COMPONENTS.append(COMPONENTS0[1])
-        if chbx_620:
-            COMPONENTS.append(COMPONENTS0[2])
+        # if chbx_450:
+            # COMPONENTS.append(COMPONENTS0[0])
+        # if chbx_520:
+            # COMPONENTS.append(COMPONENTS0[1])
+        # if chbx_620:
+            # COMPONENTS.append(COMPONENTS0[2])
+        sw = wavelengthvar
+        for i in range(len(sw)):
+            if sw[i][2]:
+                COMPONENTS.append(int(sw[i][0]))
 
         # for idx in range(1, 5):
             # self._viz.add_geometry(get_reader(base / f"geometry{idx}.vtu"))
@@ -141,12 +154,16 @@ class Engine:
         # Wavelength.sort()
         COMPONENTS0 = Wavelength.copy()
         COMPONENTS = []
-        if chbx_450:
-            COMPONENTS.append(COMPONENTS0[0])
-        if chbx_520:
-            COMPONENTS.append(COMPONENTS0[1])
-        if chbx_620:
-            COMPONENTS.append(COMPONENTS0[2])
+        # if chbx_450:
+            # COMPONENTS.append(COMPONENTS0[0])
+        # if chbx_520:
+            # COMPONENTS.append(COMPONENTS0[1])
+        # if chbx_620:
+            # COMPONENTS.append(COMPONENTS0[2])
+        sw = self._server.state.wavelength
+        for i in range(len(sw)):
+            if sw[i][2]:
+                COMPONENTS.append(int(sw[i][0]))
 
         # for idx in range(1, 5):
             # self._viz.add_geometry(get_reader(base / f"geometry{idx}.vtu"))
@@ -204,20 +221,41 @@ class Engine:
     def viz(self):
         return self._viz
 
-
 def initialize(server):
     state, ctrl = server.state, server.controller
     engine = Engine(server)
 
     dir_to_list = Path("./data")
     state.available_directories = os.listdir(dir_to_list)
+        
     # Dynamic wavelength checkbox
-    state.wavelength = [
-    ("450", "rgb(238, 130, 238)", True),
-    ("520", "green", True),
-    ("620", "red", True),
-    ("630", "red", False),
-    ]
+    # state.wavelength = [
+    # ("450", "rgb(238, 130, 238)", True),
+    # ("520", "green", True),
+    # ("620", "red", True),
+    # ("630", "red", False),
+    # ]
+    full_path = Path(f"")
+    base = Path(full_path)
+    FileLoca = os.getcwd()+'/'+str(base)
+    FileNameW = 'Wavelength'
+    
+    data_dir = pjoin(dirname(sio.__file__), FileLoca)
+    mat_contentsW = sio.loadmat(data_dir+'/'+FileNameW+'.mat')
+    wvln = mat_contentsW[FileNameW][0]
+    Wavelengthvar = np.asarray(wvln, dtype=object).tolist()
+    sw = []        
+    for i in range(len(Wavelengthvar)):
+        wrgb = wave2rgb(Wavelengthvar[i])
+        wrgbint = []
+        for j in range(3):
+            wrgbint.append(int(wrgb[j]*255))
+        wrgbint = tuple(wrgbint)    
+        sw.append((str(Wavelengthvar[i]),'rgb'+str(wrgbint),True))
+
+    state.wavelength = sw
+    
+    state.shapes = None
 
     # Bind engine methods to controller
     ctrl.get_vtk_renderwindow = engine.get_renderwindow
@@ -227,9 +265,14 @@ def initialize(server):
     state.change("tube_cap")(engine.update_tube_capping)
     state.change("color_preset")(engine.update_color_preset)
 
+    @state.change("event")
+    def on_relayout(event):
+        print("callback=", event, flush=True)
+        state.shapes = event
+
     @state.change("inp_nsub","inp_ntop","inp_devx","inp_devy")
     def create_plotly_fig(inp_nsub,inp_ntop,inp_devx,inp_devy,**kwargs):
-        
+                
         nSub = list(float(i) for i in inp_nsub.split(','))
         nTop = list(float(i) for i in inp_ntop.split(','))        
         devx = list(float(i) for i in inp_devx.split(','))
@@ -255,28 +298,20 @@ def initialize(server):
         figks.update_layout(width=600, height=600,
                             title = "<b>Plot-1</b>")
 
-        figks.add_shape(type="rect",
-            xref= 'x', yref="y",
-            fillcolor='blue',
-            x0=devx[0], y0=devy[0],
-            x1=devx[1], y1=devy[1],
-            line_color='blue',opacity=0.75, editable=True
-        )
-
 
         figks.add_shape(type="rect",
             xref= 'x', yref="y",
             fillcolor='red',
             x0=1.2, y0=-1.2,
-            x1=1.4, y1=-1.4,
+            x1=1.6, y1=-1.8,
             line_color='red',opacity=0.75, editable=True
         )
 
         figks.add_shape(type="rect",
             xref= 'x', yref="y",
             fillcolor='green',
-            x0=1.5, y0=0,
-            x1=1.8, y1=0.3,
+            x0=1.4, y0=0,
+            x1=1.9, y1=0.6,
             line_color='green',opacity=0.75, editable=True
         )
 
@@ -376,7 +411,7 @@ def initialize(server):
         
         engine._viz.clear_pipeline()
         engine.update_visibility
-        
+                
         if np.sum(state.grid)==0:
             grid=[[1]]
         else:
@@ -402,23 +437,15 @@ def initialize(server):
                     state.data_available = True
                     ctrl.fig_3_update()
 
-    @state.change("wavelength")
-    def readchkbox(wavelength, **kwargs):
-    
-        print('wavelength=',wavelength, flush=True)
-
-
-
-
-    @state.change("data_directory", "wvlt_chbx_450", "wvlt_chbx_520", "wvlt_chbx_620")
-    def load_chbox(data_directory, wvlt_chbx_450, wvlt_chbx_520, wvlt_chbx_620, **kwargs):
+    @state.change("data_directory", "wavelength")
+    def load_chbox(data_directory, wavelength, **kwargs):
     
         if data_directory is None:
             return
             
         engine._viz.clear_pipeline()
         engine.update_visibility
-        
+                
         if np.sum(state.grid)==0:
             grid=[[1]]
         else:
@@ -435,7 +462,6 @@ def initialize(server):
                     fldnam = data_directory+'/'+fldnam                    
                     full_path = Path(f"./data/{fldnam}")
 
-                    # engine.load_chbox(full_path, wvlt_chbx_450, wvlt_chbx_520, wvlt_chbx_620)
                     engine.update_visibility
                     engine.load_dataset(full_path)
                     engine.update_tube_radius(state.tube_radius)

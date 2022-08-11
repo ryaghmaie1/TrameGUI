@@ -46,10 +46,63 @@ def geometry_line(ctrl, index):
             html.Div(f"geom-6", style="vertical-align: middle")
     return container
 
+# def create_dragfigure(width=600, height=600, **kwargs):
+    # figks = go.Figure()
+
+    # figks.add_shape(type="circle",
+        # xref= 'x', yref="y",
+        # fillcolor='grey',
+        # x0=-2, y0=-2, x1=2, y1=2,
+        # line_color='grey',opacity=0.25,
+    # )
+    # figks.add_shape(type="circle",
+        # xref= 'x', yref="y",
+        # fillcolor="white",
+        # x0=-1, y0=-1, x1=1, y1=1,
+        # line_color="white",opacity=0.5,
+    # )
+
+    # figks.update_xaxes(range=[-2, 2], zeroline=False)
+    # figks.update_yaxes(range=[-2, 2])
+    # figks.update_layout(width=600, height=600,
+                        # title = "<b>Plot-1</b>")
+
+    # devx = [0, 0.1]
+    # devy = [0, 0.1]
+    # figks.add_shape(type="rect",
+        # xref= 'x', yref="y",
+        # fillcolor='blue',
+        # x0=devx[0], y0=devy[0],
+        # x1=devx[1], y1=devy[1],
+        # line_color='blue',opacity=0.75, editable=True
+    # )
+
+
+    # figks.add_shape(type="rect",
+        # xref= 'x', yref="y",
+        # fillcolor='red',
+        # x0=1.2, y0=-1.2,
+        # x1=1.3, y1=-1.3,
+        # line_color='red',opacity=0.75, editable=True
+    # )
+
+    # figks.add_shape(type="rect",
+        # xref= 'x', yref="y",
+        # fillcolor='green',
+        # x0=1.5, y0=0,
+        # x1=1.6, y1=0.1,
+        # line_color='green',opacity=0.75, editable=True
+    # )
+
+    # return figks
 
 def initialize(server):
     state, ctrl = server.state, server.controller
     state.trame__title = "RayViewer"
+    
+    # def on_relayout(event=None):
+        # print("relayout", event)
+        # state.shapes = event
 
     with VAppLayout(server) as layout:
         with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
@@ -215,22 +268,22 @@ def initialize(server):
                         with vuetify.VCardText():
                             with vuetify.VCardTitle("Wavelength", classes="py-0"):
                                 vuetify.VSpacer()
-                                with vuetify.VRow(classes="align-center mt-2"):
-                                    vuetify.VCheckbox(
-                                        label="450",
-                                        v_model=("wvlt_chbx_450", True),
-                                        color='blue',
-                                        classes="mx-2")
-                                    vuetify.VCheckbox(
-                                        label="520",
-                                        v_model=("wvlt_chbx_520", True),
-                                        color='green',
-                                        classes="mx-2")
-                                    vuetify.VCheckbox(
-                                        label="620",
-                                        v_model=("wvlt_chbx_620", True),
-                                        color='red',
-                                        classes="mx-2")
+                                # with vuetify.VRow(classes="align-center mt-2"):
+                                    # vuetify.VCheckbox(
+                                        # label="450",
+                                        # v_model=("wvlt_chbx_450", True),
+                                        # color='blue',
+                                        # classes="mx-2")
+                                    # vuetify.VCheckbox(
+                                        # label="520",
+                                        # v_model=("wvlt_chbx_520", True),
+                                        # color='green',
+                                        # classes="mx-2")
+                                    # vuetify.VCheckbox(
+                                        # label="620",
+                                        # v_model=("wvlt_chbx_620", True),
+                                        # color='red',
+                                        # classes="mx-2")
                                 with vuetify.VRow(classes="align-center mt-2"):
                                     vuetify.VCheckbox(
                                         v_for = "i10, index in wavelength",
@@ -386,6 +439,10 @@ def initialize(server):
                                     figure = plotly.Figure(
                                         display_logo=True,
                                         display_mode_bar="true",
+                                        editable=True,
+                                        edits=("{ shapePosition: true }",),
+                                        __properties=["edits"],
+                                        relayout=(on_relayout, "[$event]"),
                                         # selected=(on_event, "['selected', utils.safe($event)]"),
                                         # hover=(on_event, "['hover', utils.safe($event)]"),
                                         # selecting=(on_event, "['selecting', $event]"),
@@ -393,12 +450,19 @@ def initialize(server):
                                     )
                                     ctrl.fig_1_update = figure.update
                             
-                            
-                                # with trame.SizeObserver("fig_1_size"):
-                                    # fig = plotly.Figure(
-                                        # display_mode_bar=False, style="position: absolute;"
-                                    # )
-                                    # ctrl.fig_1_update = fig.update
+                                # with vuetify.VRow():
+                                    # with vuetify.VCol():
+                                        # with trame.SizeObserver("fig_1_size"):
+                                            # ctrl.fig_1_update = plotly.Figure(
+                                                # create_dragfigure(),
+                                                # display_mode_bar=("false",),
+                                                # editable=True,
+                                                # edits=("{ shapePosition: true }",),
+                                                # __properties=["edits"],
+                                                # relayout=(on_relayout, "[$event]"),
+                                            # ).update
+                                    # # with vuetify.VCol():
+                                        # # html.Pre("{{ shapes }}")
 
                 with html.Div(
                     classes="px-0 ma-0 d-flex flex-no-wrap",
